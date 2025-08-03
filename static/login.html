@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>
+        body {
+            background: linear-gradient(135deg, #ece9e6, #ffffff 80%);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background: #fff;
+            padding: 2em 2.5em;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            min-width: 320px;
+        }
+        .login-title {
+            font-size: 1.7em;
+            font-weight: 600;
+            margin-bottom: 1.2em;
+            text-align: center;
+            color: #3b3b3b;
+        }
+        .login-field {
+            margin-bottom: 1em;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.4em;
+            color: #555;
+            font-size: 1em;
+        }
+        input {
+            width: 100%;
+            padding: 0.7em;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 1em;
+            background: #fafafa;
+            transition: border-color 0.2s;
+        }
+        input:focus {
+            border-color: #bdbdbd;
+            outline: none;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 0.9em;
+            background: linear-gradient(90deg, #7f7fd5 0%, #86a8e7 100%);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.7em;
+            transition: background 0.2s;
+        }
+        .login-btn:hover {
+            background: linear-gradient(90deg, #86a8e7 0%, #7f7fd5 100%);
+        }
+        .login-message {
+            margin-top: 1em;
+            text-align: center;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+<div class="login-container">
+    <div class="login-title">Login</div>
+    <div class="login-field">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" required autocomplete="username" />
+    </div>
+    <div class="login-field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required autocomplete="current-password" />
+    </div>
+    <button class="login-btn" id="loginBtn" type="button">Sign In</button>
+    <div class="login-message" id="message"></div>
+</div>
+<script>
+    document.getElementById('loginBtn').addEventListener('click', function() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const msg = document.getElementById('message');
+        msg.textContent = '';
+        msg.style.color = '';
+        if (!username || !password) {
+            msg.textContent = "Please enter both username and password.";
+            msg.style.color = "red";
+            return;
+        }
+        fetch('/api/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username, password})
+        })
+            .then(res => res.text())
+            .then(text => {
+                if (text === "OK") {
+                    setTimeout(function() {
+                        window.location.href = "/success";
+                    }, 700);
+                }
+            })
+            .catch(() => {
+                msg.textContent = 'Network error.';
+                msg.style.color = 'red';
+            });
+    });
+</script>
+</body>
+</html>
