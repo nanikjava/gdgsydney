@@ -1,0 +1,30 @@
+# Start from the official Golang image for building
+FROM golang:1.24.5-alpine AS builder
+
+WORKDIR /app
+
+# Install build tools and SQLite3 development files
+RUN apk add --no-cache build-base musl-dev sqlite-dev
+
+COPY db/ db/
+COPY routes/ routes/
+COPY static/ static/
+COPY main.go .
+
+# Copy go mod and sum first, then source code
+COPY go.mod go.sum ./
+RUN go mod tidy
+
+# Build the Go app (static binary)
+RUN CGO_ENABLED=1 CC=gcc go build -tags 'sqlite_omit_load_extension' -ldflags '-linkmode external -extldflags "-static"' -o main .
+
+# --- Final Stage: Copy only the statically-linked binary to scratch ---
+FROM scratch
+
+WORKDIR /app
+
+COPY --from=builder /app/main .
+
+EXPOSE 8080
+
+CMD ["/app/main"]
